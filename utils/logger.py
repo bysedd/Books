@@ -7,7 +7,11 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(message)s",
     datefmt="[%X]",
-    handlers=[RichHandler(rich_tracebacks=True, show_path=False, show_time=False, show_level=False)]
+    handlers=[
+        RichHandler(
+            rich_tracebacks=True, show_path=False, show_time=False, show_level=False
+        )
+    ],
 )
 
 
@@ -35,13 +39,14 @@ def log(message):
     logging.info(message)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+
     @func_log
     def example_func():
         # Simulating a function that takes a bit of time to execute
         import time
         from random import randint
-        time.sleep(randint(1, 3))
 
+        time.sleep(randint(1, 3))
 
     example_func()
