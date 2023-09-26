@@ -7,7 +7,7 @@ from faker import Faker
 from utils.logger import log
 
 
-class User:
+class Users:
     """
     User class for storing user personal information.
     """
@@ -136,23 +136,28 @@ Email address: {self.email_address}
 Date of birth: {self.date_of_birth}"""
 
 
-if __name__ == "__main__":
+def generate_user(*, first_name: str = None) -> Users:
     faker = Faker()
 
     fake_email = faker.email()
     username, _domain = fake_email.split("@")
     fake_gmail = username + "@gmail.com"
 
-    user = User(
+    return Users(
         faker.user_name(),
-        faker.first_name(),
+        first_name or faker.first_name(),
         faker.last_name(),
         faker.building_number(),
         faker.street_name(),
         faker.postcode(),
         fake_gmail,
-        faker.date_of_birth(maximum_age=60),
+        faker.date_of_birth(maximum_age=90),
     )
+
+
+if __name__ == "__main__":
+    user = generate_user()
+
     print(user)
     print("-=" * 20)
 
