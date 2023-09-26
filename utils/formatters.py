@@ -1,33 +1,28 @@
 import re
 
 
-def format_title(title):
+def format_title(title: str) -> str:
     """
     Format the title of the book.
+
+    :param title: The title of the book.
+    :return: The formatted title of the book.
     """
-    # Remove matched patterns and strip-trailing spaces
-    title = re.sub(r"[\[(].*?[)\]]|(?<=:).*$|(?<=-).*$|(?<=;).*$|(?<=,).*$", "", title).strip()
-
-    # Remove special characters
-    title = re.sub(r"[^a-zA-Z0-9\s]", "", title)
-
-    # Remove the spaces for each word
-    title = " ".join([word.strip() for word in title.split()])
-
-    # Remove the quotation marks
-    title = title.replace('"', '')
-    title = title.replace("'", '')
-
+    # Remove matched patterns, special characters, and quotation marks, then strip spaces for each word
+    title = re.sub(
+        r"[\[(].*?[)\]]|(?<=:).*$|(?<=-).*$|(?<=;).*$|(?<=,).*$|[^a-zA-Z0-9\s]|['\"]",
+        "",
+        title,
+    )
+    title = " ".join(title.split())
     return title
 
 
-def format_price(price: str):
+def format_price(price: str) -> float:
     """
     Format the price of the book.
-    """
-    # Remove the unknown and pound character
-    price = price[2:]
-    # Convert to float
-    price = float(price)
 
-    return price
+    :param price: The price of the book in a pound.
+    :return: The price of the book as a float.
+    """
+    return float(price[2:])
