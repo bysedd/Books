@@ -5,9 +5,9 @@ from rich.logging import RichHandler
 
 logging.basicConfig(
     level=logging.INFO,
-    format="%(message)s",
+    format="%(asctime)s %(message)s",
     datefmt="[%X]",
-    handlers=[RichHandler(rich_tracebacks=True, show_path=False)]
+    handlers=[RichHandler(rich_tracebacks=True, show_path=False, show_time=False, show_level=False)]
 )
 
 
