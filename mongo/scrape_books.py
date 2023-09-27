@@ -1,16 +1,15 @@
+from typing import List, Dict
+
 import requests
 from bs4 import BeautifulSoup
 
+from utils.constants import BASE_DIR
 from utils.formatters import format_title, format_price
 from utils.logger import func_log
 
-from typing import List, Dict
-
-from utils.constants import BASE_DIR
-
 if __name__ == '__main__':
     @func_log
-    def scrape_books() -> List[Dict[str, int]]:
+    def scrape_books() -> List[Dict[str, str | float]]:
         """
         Scrape books information from the 'https://books.toscrape.com' website.
 
@@ -29,7 +28,7 @@ if __name__ == '__main__':
                 books_.append({"title": format_title(title), "price": format_price(price)})
         return books_
 
-    def write_books(books_: List[Dict[str, int]]) -> None:
+    def write_books(books_: List[Dict[str, float]]) -> None:
         """
         This method takes a list of books and writes the titles of the books to a text file named “books.txt” located
         in the “data” subdirectory of the base directory. The titles appear on separate lines in the file. If a
@@ -41,7 +40,8 @@ if __name__ == '__main__':
         with open(BASE_DIR / "data" / "books.txt", "w", encoding="utf-8") as file:
             for book in books_:
                 title = str(book["title"])
-                if len(title) > 10:
+                if 10 <= len(title) <= 24:
                     file.write(f"{title}\n")
 
-    write_books(scrape_books())
+    books = scrape_books()
+    write_books(books)
