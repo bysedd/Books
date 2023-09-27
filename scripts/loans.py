@@ -81,10 +81,12 @@ class Loans:
                     user = users_list.user_collection.get(username)
                     if user:
                         if username not in overdue_books:
-                            overdue_books[username] = {"first_name": user.get_firstname()}
-                            overdue_books[username].update({
-                                "books": [book.get_title()]
-                            })
+                            overdue_books[username] = {
+                                "first_name": user.get_firstname()
+                            }
+                            overdue_books[username].update(
+                                {"books": [book.get_title()]}
+                            )
                         else:
                             overdue_books[username]["books"].append(book.get_title())
         return overdue_books
