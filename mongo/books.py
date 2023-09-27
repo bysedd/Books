@@ -1,24 +1,11 @@
-from mongo.setup_db import setup
-from utils.logger import func_log
-from utils.constants import BASE_DIR
-
 from typing import Generator, Any
 
+from mongo.mongodb import setup
+from scripts.book import get_random_title, get_all_books
+from utils.logger import func_log
 
 db = setup()
 books_collection = db.books_collection
-
-
-def get_random_title() -> str:
-    """
-    Generate a random title from the book collection.
-
-    :return: The random title generated from the book collection.
-    """
-    global books_collection
-    random_book = books_collection.aggregate([{"$sample": {"size": 1}}])
-    for book_ in random_book:
-        return book_['title']
 
 
 @func_log
@@ -35,8 +22,7 @@ def add_to_db(books_: Generator[str, Any, None], /) -> None:
 
 
 if __name__ == '__main__':
-    with open(BASE_DIR / "data" / "books.txt", "r", encoding="utf-8") as f:
-        books = (book_.strip() for book_ in f.readlines())
-
+    books = get_all_books()
     # add_to_db(books)
+
     print(f"Random book title: {get_random_title()}")
