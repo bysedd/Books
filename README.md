@@ -1,54 +1,43 @@
-Books: create a Python class defines methods for creating book records.
-Each record should include generated book ID, title, author,
-year, publisher, number of enabled copies, and publication date.
-Implement separate methods to set each attribute of the book, such as title,
-author, year, publisher, number of enabled copies, and publication date.
-Additionally, include methods to retrieve each attribute of the book, including title,
-author, year, publisher, number of copies, number of enabled copies, and publication date.
-Make sure to incorporate error checking, such as exception handling, throughout the class.
-Give appropriate comments for documentation purposes.
+# Library System
 
-BookList:
-develop a Python class provides methods for managing a collection of book objects created from the Book class.
-Construct a constructor to create a new instance of this class.
-Design a method to store the collection of book instances using a data structure, such as a dictionary.
-Implement a method that allows searching through the collection to find a book based on title,
-author, publisher, or publication date.
-Create a method for removing a book from the collection, specifying the title of the book as the parameter.
-Additionally, include a method to return the total number of books stored in the collection.
-Incorporate error checking, such as exception handling, into the class.
-Include comments to document the capability of the class.
+![GitHub repo size](https://img.shields.io/github/repo-size/l0p0v/Books?style=for-the-badge)
+![GitHub language count](https://img.shields.io/github/languages/count/l0p0v/Books?style=for-the-badge)
+![GitHub forks](https://img.shields.io/github/forks/l0p0v/Books?style=for-the-badge)
+![Bitbucket open issues](https://img.shields.io/bitbucket/issues/l0p0v/Books?style=for-the-badge)
+![Bitbucket open pull requests](https://img.shields.io/bitbucket/pr-raw/l0p0v/Books?style=for-the-badge)
 
-Users: create a Python class with functions for creating user objects.
-Define a constructor to initialize a user with attributes such as username, first name,
-surname, house number, street name, zip code, email address, and date of birth.
-Implement separate methods to retrieve each attribute of the user, including username,
-first name, surname, house number, street name, zip code, email address, and date of birth.
-Similarly, create methods to edit the attributes of the user,
-such as first name, surname, email address, and date of birth.
-Ensure that appropriate error checking is included.
-Comment the class to give clear documentation.
+![image](https://github.com/l0p0v/Books/assets/86175721/a8e70722-62bc-4546-9991-08af07f8ad2b)
+> This Python code creates a library management system using the cmd library. It allows users to add, modify, and view books and users through a command-line interface. The system uses two lists for books and users, each with their own attributes and methods to handle their information.
 
-UserList:
-design a Python class facilitates the management of user's objects collections created using the Users class.
-Construct a constructor to create a new instance of this class.
-Implement a method to store the collection of user instances using a suitable data structure, such as a dictionary.
-Create a method for removing a user from the collection based on their first name.
-This method should tell the program users if there are many users with the same first name.
-Additionally, include a method to count the number of users in the system,
-which can be determined by the number of user objects in the collection.
-Develop a method to retrieve a user's details based on their username.
-Include error checking in the class, such as exception handling.
-Give comments to document the capability of the class.
+### Adjustments and Enhancements
 
-Loans: craft a Python class for managing book loans.
-Construct a constructor to create a new instance of this class.
-Implement a method that allows a user to borrow a book.
-This method should include an appropriate mechanism for assigning a book to a user.
-Store this information in a suitable data structure for further processing.
-Create a method for a user to return a book, which involves unassigning a before assigned book.
-Develop a method that counts and returns the total number of books a user is now borrowing.
-Additionally, include a method to print all the overdue books, along with the user's username and first name.
-Retrieve the username and first name of the user using the appropriate methods defined in the User class.
-Include error checking, such as exception handling, within the class.
-Give comments to document the capability of the class.
+The project is still in development, and the next updates will be targeted at:
+
+- [ ] Add delete feature
+- [ ] Integrate class `Loans`
+- [ ] Enhance user experience
+
+## 💻 Requirements
+
+Before you begin, make sure you have access to the following requirements:
+
+* You have installed the latest version of [`python`](https://www.python.org/downloads/)
+* You have installed the [`git`]([https://git.com/downloads](https://git-scm.com/downloads)https://git-scm.com/downloads)
+
+## 🚀 Installing
+
+To install, follow these steps:
+
+```
+git clone https://github.com/l0p0v/Books.git
+cd Books
+python -m venv venv
+pip install -r requirements.txt
+```
+
+## ☕ Using
+
+To use, follow these steps:
+```
+python cli.py
+```
