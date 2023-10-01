@@ -3,6 +3,15 @@ import os
 
 from scripts.book import BookList, Book
 from scripts.user import UserList, User, generate_user
+from utils.constants import ASCII_ART
+
+
+def title_msg(string: str) -> str:
+    """
+    Capitalize the first letter of each word in a string.
+    """
+    string = f"{'-' * 20} {string} {'-' * 20}"
+    return string.title()
 
 
 class LibraryCMD(cmd.Cmd):
@@ -10,16 +19,7 @@ class LibraryCMD(cmd.Cmd):
     Command processor for library management.
     """
 
-    intro = """
- _       _________ ______   _______  _______  _______          
-( \      \__   __/(  ___ \ (  ____ )(  ___  )(  ____ )|\     /|
-| (         ) (   | (   ) )| (    )|| (   ) || (    )|( \   / )
-| |         | |   | (__/ / | (____)|| (___) || (____)| \ (_) / 
-| |         | |   |  __ (  |     __)|  ___  ||     __)  \   /  
-| |         | |   | (  \ \ | (\ (   | (   ) || (\ (      ) (   
-| (____/\___) (___| )___) )| ) \ \__| )   ( || ) \ \__   | |   
-(_______/\_______/|/ \___/ |/   \__/|/     \||/   \__/   \_/   
-    """
+    intro = ASCII_ART
     intro += (
         "\nWelcome to the library system. Type 'help' or '?' to list the commands.\n"
     )
@@ -35,7 +35,7 @@ class LibraryCMD(cmd.Cmd):
         usage: add_book
         """
         book = Book()
-        print("Adding a new book")
+        print(title_msg("Adding a new book"))
         try:
             title = input("Enter book title: ")
             book.set_title(title)
@@ -56,7 +56,7 @@ class LibraryCMD(cmd.Cmd):
         Add a user
         usage: add_user
         """
-        print("Adding a new user")
+        print(title_msg("Adding a new user"))
         try:
             firstname = input("Enter first name: ")
             surname = input("Enter surname: ")
@@ -175,7 +175,7 @@ class LibraryCMD(cmd.Cmd):
         Stop the command loop
         usage: exit
         """
-        return True
+        raise KeyboardInterrupt
 
     @staticmethod
     def do_clear(line):
@@ -186,10 +186,14 @@ class LibraryCMD(cmd.Cmd):
         os.system('cls' if os.name == 'nt' else 'clear')
 
 
-if __name__ == "__main__":
+def main():
     try:
         LibraryCMD().cmdloop()
     except KeyboardInterrupt:
-        print("\nExiting...")
+        print("Exiting...")
     except Exception as e:
         print(f"An error occurred: {e}")
+
+
+if __name__ == "__main__":
+    main()
