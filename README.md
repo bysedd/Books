@@ -16,13 +16,14 @@ The project is still in development, and the next updates will be targeted at:
 - [ ] Add delete feature
 - [ ] Integrate class `Loans`
 - [ ] Enhance user experience
+- [ ] Add tests
 
 ## 💻 Requirements
 
 Before you begin, make sure you have access to the following requirements:
 
 * You have installed the latest version of [`python`](https://www.python.org/downloads/)
-* You have installed the [`git`]([https://git.com/downloads](https://git-scm.com/downloads)https://git-scm.com/downloads)
+* You have installed the [`git`](https://git-scm.com/downloads)
 
 ## 🚀 Installing
 
