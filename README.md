@@ -33,7 +33,7 @@ To install, follow these steps:
 git clone https://github.com/l0p0v/Books.git
 cd Books
 python -m venv venv
-\venv\Scripts\activate
+venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
