@@ -1,17 +1,10 @@
 import cmd
 import os
 
-from scripts.book import BookList, Book
-from scripts.user import UserList, User, generate_user
+from scripts.book import Book, BooksDB
+from scripts.user import User, UsersDB
 from utils.constants import ASCII_ART
-
-
-def title_msg(string: str) -> str:
-    """
-    Capitalize the first letter of each word in a string.
-    """
-    string = f"{'-' * 20} {string} {'-' * 20}"
-    return string.title()
+from utils.utils import title_msg
 
 
 class LibraryCMD(cmd.Cmd):
@@ -26,132 +19,134 @@ class LibraryCMD(cmd.Cmd):
 
     def __init__(self):
         super().__init__()
-        self.book_list = BookList()
-        self.user_list = UserList()
+        self.books_db = BooksDB()
+        self.users_db = UsersDB()
 
-    def do_add_book(self, line):
+    def do_create(self, line):
         """
-        Add a book
-        usage: add_book
+        Create a book or user
+        usage: create
         """
-        book = Book()
-        print(title_msg("Adding a new book"))
-        try:
-            title = input("Enter book title: ")
-            book.set_title(title)
-            author = input("Enter book author: ")
-            book.set_author(author)
-            year = int(input("Enter book publication year: "))
-            book.set_year(year)
-            publisher = input("Enter book publisher: ")
-            book.set_publisher(publisher)
-            available_copies = int(input("Enter number of available copies: "))
-            book.set_available_copies(available_copies)
-            self.book_list.store_book(book)
-        except ValueError:
-            print("Invalid input. Please try again.")
+        print(title_msg("Creating..."))
+        option = input("Enter 'book' or 'user': ").strip().lower()
+        match option:
+            case "book":
+                book = Book.create_book()
+                if book:
+                    self.books_db.create(obj=book)
+            case "user":
+                user = User.create_user()
+                if user:
+                    self.users_db.create(obj=user)
+            case _:
+                print("Invalid option.")
 
-    def do_add_user(self, line):
+    def do_read(self, line):
         """
-        Add a user
-        usage: add_user
+        Read a book or user
+        usage: read
         """
-        print(title_msg("Adding a new user"))
+        print(title_msg("Reading..."))
+        option = input("Enter 'book' or 'user': ").strip().lower()
         try:
-            firstname = input("Enter first name: ")
-            surname = input("Enter surname: ")
-            house_number = int(input("Enter house number: "))
-            street_name = input("Enter street name: ")
-            postcode = input("Enter postcode: ")
+            _id = int(input("Enter id: "))
         except ValueError:
-            print("Invalid input. Please try again.")
+            print("Invalid id.")
             return
 
-        generated_user = generate_user(firstname)
-        user = User(
-            username=generated_user.get_username(),
-            firstname=firstname,
-            surname=surname,
-            house_number=house_number,
-            street_name=street_name,
-            postcode=postcode,
-            date_of_birth=generated_user.get_date_of_birth(),
-            email_address=generated_user.get_email_address(),
-        )
-        self.user_list.store_user(user)
+        match option:
+            case "book":
+                book = self.books_db.read(primary_key=_id)
+                if book:
+                    print(title_msg("Book information"))
+                    print(book)
+                else:
+                    print("Book not found.")
+            case "user":
+                user = self.users_db.read(primary_key=_id)
+                if user:
+                    print(title_msg("User information"))
+                    print(user)
+                else:
+                    print("User not found.")
+            case _:
+                print("Invalid option.")
 
-    def do_mod_book(self, line):
+    def do_update(self, line):
         """
-        Change a book
-        usage: mod_book
+        Update a book or user
+        usage: update
         """
+        print(title_msg("Updating..."))
+        option = input("Enter 'book' or 'user': ").strip().lower()
         try:
-            id_ = int(input("Enter book id to modify: "))
+            _id = int(input("Enter id: "))
         except ValueError:
-            print("Invalid book id.")
+            print("Invalid id.")
             return
 
-        book = self.book_list.book_collection.get(id_)
-        if book:
-            print(f"Modifying Book '{book.get_title()}'")
-            new_title = input("Enter new title ('Enter' to leave unchanged): ")
-            if new_title:
-                book.set_title(new_title)
-        else:
-            print(f"No book with id {id_} found.")
+        match option:
+            case "book":
+                book = self.books_db.read(primary_key=_id)
+                if book:
+                    print("Enter new book details:")
+                    new_book = Book.create_book()
+                    if new_book:
+                        self.books_db.update(primary_key=_id, obj=new_book)
+                else:
+                    print("Book not found.")
+            case "user":
+                user = self.users_db.read(primary_key=_id)
+                if user:
+                    print("Enter new user details:")
+                    new_user = User.create_user()
+                    if new_user:
+                        self.users_db.update(primary_key=_id, obj=new_user)
+                else:
+                    print("User not found.")
+            case _:
+                print("Invalid option.")
 
-    def do_mod_user(self, line):
+    def do_delete(self, line):
         """
-        Change a user
-        usage: mod_user
+        Delete a book or user
+        usage: delete
         """
-        username = input("Enter username: ")
-        user = self.user_list.get_user(username)
-        if user:
-            user.modify()
-        else:
-            print(f"No user with username {username} found.")
-
-    def do_view_book(self, line):
-        """
-        View a book
-        usage: view_book <id>
-        """
+        print(title_msg("Deleting..."))
+        option = input("Enter 'book' or 'user': ").strip().lower()
         try:
-            id_ = int(input("Enter book id to view: "))
+            _id = int(input("Enter id: "))
         except ValueError:
-            print("Invalid book id.")
+            print("Invalid id.")
             return
 
-        book = self.book_list.book_collection.get(id_)
-        if book:
-            print(book)
-        else:
-            print(f"No book with id {id_} found.")
-
-    def do_view_user(self, line):
-        """
-        View a user
-        usage: view_user <username>
-        """
-        username = input("Enter the username: ")
-        user = self.user_list.get_user(username)
-        if user:
-            print(user)
-        else:
-            print(f"No user with username {username} found.")
+        match option:
+            case "book":
+                book = self.books_db.read(primary_key=_id)
+                if book:
+                    self.books_db.delete(primary_key=_id)
+                    print("Book deleted successfully.")
+                else:
+                    print("Book not found.")
+            case "user":
+                user = self.users_db.read(primary_key=_id)
+                if user:
+                    self.users_db.delete(primary_key=_id)
+                    print("User deleted successfully.")
+                else:
+                    print("User not found.")
+            case _:
+                print("Invalid option.")
 
     def do_help(self, arg):
         """
         Display help information.
         """
         commands = {
-            "add_book": "Add a new book.",
-            "add_user": "Add a new user.",
-            "mod_book": "Modify an existing book.",
-            "mod_user": "Modify an existing user.",
-            "view_book": "View information of a book. Example: view_book <id>",
-            "view_user": "View information of a user. Example: view_user <username>",
+            "create": "Create a new book or user",
+            "read": "Read a book or user",
+            "update": "Update a book or user",
+            "delete": "Delete a book or user",
             "exit": "Exit the program.",
             "clear": "Clear the terminal.",
         }
@@ -162,12 +157,6 @@ class LibraryCMD(cmd.Cmd):
             print("Available commands:")
             for cmd_, desc in commands.items():
                 print(f"{cmd_}: {desc}")
-
-    def emptyline(self):
-        """
-        Do nothing on empty input line
-        """
-        pass
 
     @staticmethod
     def do_exit(line):
@@ -183,7 +172,7 @@ class LibraryCMD(cmd.Cmd):
         Clear the terminal
         usage: clear
         """
-        os.system('cls' if os.name == 'nt' else 'clear')
+        os.system("cls" if os.name == "nt" else "clear")
 
 
 def main():

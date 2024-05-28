@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from typing import Dict
 
 from scripts.book import Book, get_all_books
-from scripts.user import User, UserList, generate_user
+from scripts.user import User, UsersDB, generate_user
 from utils.logger import log
 
 
@@ -68,7 +68,7 @@ class Loans:
             log(f"User '{user.get_username()}' has not borrowed any books yet")
             return 0
 
-    def overdue_books(self, users_list: UserList) -> Dict[str, Dict[str, str]]:
+    def overdue_books(self, users_list: UsersDB) -> Dict[str, Dict[str, str]]:
         today = datetime.now()
         overdue_books = {}
         for username, borrowed_books in self.loan_records.items():
@@ -100,22 +100,3 @@ class Loans:
             print()
         else:
             print("No overdue books found")
-
-
-if __name__ == "__main__":
-    loans = Loans()
-
-    user_ = generate_user()
-    list_users = UserList()
-    list_users.store_user(user_)
-    print()
-
-    book_ = Book()
-    loans.borrow_book(user_, book_)
-
-    book_ = Book()
-    loans.borrow_book(user_, book_)
-
-    print()
-
-    loans.show_overdue_books()

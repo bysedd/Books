@@ -1,348 +1,193 @@
 import re
+import textwrap
 from datetime import datetime
-from typing import Dict
 
-from django.utils.text import slugify
-from email_validator import validate_email, EmailNotValidError
-from faker import Faker
+from email_validator import EmailNotValidError, validate_email
 
+from scripts.base_db import BaseDB
+from utils.constants import FORMAT
 from utils.logger import log
+from utils.utils import alt_title, validate_name
 
 
 class User:
-    """
-    User class for storing user personal information.
-    """
+    def __init__(self):
+        self.__name: str = None
+        self.__house_number: int = None
+        self.__street_name: str = None
+        self.__postcode: str = None
+        self.__email_address: str = None
+        self.__date_of_birth: datetime = None
 
-    def __init__(
-        self,
-        username: str,
-        firstname: str,
-        surname: str,
-        house_number: int,
-        street_name: str,
-        postcode: str,
-        email_address: str,
-        date_of_birth: datetime,
-    ):
-        """
-        Initializes the User object with personal details.
-
-        :param username: User's unique username
-        :param firstname: User's first name
-        :param surname: User's last name
-        :param house_number: User's house number
-        :param street_name: User's street name
-        :param postcode: User's zip code
-        :param email_address: User's email address
-        :param date_of_birth: User's birthday.
-        """
-        self.username = username
-        self.firstname = firstname
-        self.surname = surname
-        self.house_number = house_number
-        self.street_name = street_name
-        self.postcode = postcode
-        self.email_address = email_address
-        self.date_of_birth = date_of_birth
-
-    def get_username(self):
-        """Returns the user's username."""
-        return self.username
-
-    def get_firstname(self):
-        """Returns the user's first name."""
-        return self.firstname
-
-    def get_surname(self):
-        """Returns the user's surname."""
-        return self.surname
-
-    def get_house_number(self):
-        """Returns the user's house number."""
-        return self.house_number
-
-    def get_street_name(self):
-        """Returns the user's street name."""
-        return self.street_name
-
-    def get_postcode(self):
-        """Returns the user's zip code."""
-        return self.postcode
-
-    def get_email_address(self):
-        """Returns the user's email address."""
-        return self.email_address
-
-    def get_date_of_birth(self):
-        """Returns the user's date of birth."""
-        return self.date_of_birth
-
-    def set_firstname(self, new_firstname: str):
-        """Updates the user's first name."""
-        new_firstname = new_firstname.strip()
-        if self.__validate_name(new_firstname):
-            self.firstname = new_firstname
-
-    def set_surname(self, new_surname: str):
-        """Updates the user's surname."""
-        new_surname = new_surname.strip()
-        if self.__validate_name(new_surname):
-            self.surname = new_surname
-
-    def set_housenumber(self, new_house_number: int):
-        """Updates the user's house number."""
+    @staticmethod
+    def create_user():
         try:
-            self.house_number = int(new_house_number)
+            name = input("Enter full name: ")
+            date_of_birth = input("Enter date of birth (yyyy-MM-DD): ")
+            email_address = input("Enter email address: ")
+            house_number = input("Enter house number: ")
+            street_name = input("Enter street name: ")
+            postcode = input("Enter postcode: ")
+
+            user = User()
+            user.name = name
+            user.date_of_birth = date_of_birth
+            user.email_address = email_address if email_address else None
+            user.house_number = house_number if house_number else None
+            user.street_name = street_name if street_name else None
+            user.postcode = postcode if postcode else None
+            return user
         except ValueError:
-            log("House number should be an integer")
+            print("Invalid input. Please try again.")
 
-    def set_streetname(self, new_street_name: str):
-        """Updates the user's street name."""
-        new_street_name = new_street_name.strip()
-        if self.__validate_name(new_street_name):
-            self.street_name = new_street_name
+    @property
+    def name(self) -> str:
+        return self.__name
 
-    def set_postcode(self, new_postcode: str):
-        """Updates the user's zip code."""
-        new_postcode = new_postcode.strip()
-        if len(new_postcode) < 5:
-            log("Postcode should be at least 5 characters long")
-        elif not bool(re.fullmatch("[A-Za-z0-9 ]+", new_postcode)):
-            log("Postcode should only contain letters, numbers, and spaces")
-        else:
-            self.postcode = new_postcode
+    @name.setter
+    def name(self, name: str) -> None:
+        validate_name(name)
+        self.__name = alt_title(name)
 
-    def set_email_address(self, new_email: str):
-        """
-        Updates the user's email address.
+    @property
+    def house_number(self) -> int:
+        return self.__house_number
 
-        It checks whether the new email address has a valid format.
-        """
+    @house_number.setter
+    def house_number(self, house_number: int) -> None:
+        if house_number is None:
+            return
+        if not isinstance(house_number, int):
+            raise TypeError("House number must be an integer")
+        if house_number <= 0:
+            raise ValueError("House number must be greater than 0")
+        self.__house_number = int(house_number)
+
+    @property
+    def street_name(self) -> str:
+        return self.__street_name
+
+    @street_name.setter
+    def street_name(self, street_name: str) -> None:
+        if street_name is None:
+            return
+        validate_name(street_name)
+        self.__street_name = street_name.strip()
+
+    @property
+    def postcode(self) -> str:
+        return self.__postcode
+
+    @postcode.setter
+    def postcode(self, postcode: str) -> None:
+        if postcode is None:
+            return
+        postcode = re.sub(r"\s+", "", postcode)
+        if len(postcode) < 5:
+            raise ValueError("Postcode should be at least 5 characters long")
+        if not postcode.isdigit():
+            raise ValueError("Postcode should contain only numbers")
+        self.__postcode = postcode
+
+    @property
+    def email_address(self) -> str:
+        return self.__email_address
+
+    @email_address.setter
+    def email_address(self, email_address: str) -> None:
+        if email_address is None:
+            return
         try:
-            valid = validate_email(new_email)
-            self.email_address = valid.email
+            valid = validate_email(email_address)
+            self.__email_address = valid.email
         except EmailNotValidError as e:
             log(str(e))
 
-    def set_date_of_birth(self, new_dob: str):
-        """
-        Updates the user's date of birth.
+    @property
+    def date_of_birth(self) -> datetime | str:
+        return self.__date_of_birth
 
-        Checks whether the new date of birth follows the format 'MM-DD-yyyy'.
-        """
+    @date_of_birth.setter
+    def date_of_birth(self, date_of_birth: str) -> None:
         try:
-            datetime.strptime(new_dob, "%m-%d-%Y")
+            datetime.strptime(date_of_birth, FORMAT)
         except ValueError:
-            log("Date of birth should be in the format 'MM-DD-YYYY'")
-
-        self.date_of_birth = new_dob
-
-    @staticmethod
-    def __validate_name(name: str):
-        if not isinstance(name, str):
-            log("Name should be a string")
-        elif len(name) < 2:
-            log("Name should be at least 2 characters long")
-        elif not bool(re.fullmatch("[A-Za-z ]+", name)):
-            log("Name should only contain letters and spaces")
-        else:
-            return True
-        return False
+            raise ValueError(f"Date of birth should be in the format ({FORMAT})")
+        self.__date_of_birth = date_of_birth
 
     def __str__(self):
-        return f"""Username: {self.username}
-First name: {self.firstname}
-Surname: {self.surname}
-House number: {self.house_number}
-Street name: {self.street_name}
-Postcode: {self.postcode}
-Email address: {self.email_address}
-Date of birth: {self.date_of_birth}"""
-
-    def modify(self):
-        print(f"Modifying user '{self.get_username()}'")
-        new_firstname = input(
-            "Enter new first name ('Enter' to leave unchanged): "
-        ).strip()
-        new_surname = input("Enter new surname ('Enter' to leave unchanged): ").strip()
-        new_house_number = input(
-            "Enter new house number ('Enter' to leave unchanged): "
-        ).strip()
-        new_street_name = input(
-            "Enter new street name ('Enter' to leave unchanged): "
-        ).strip()
-        new_postcode = input(
-            "Enter new postal code ('Enter' to leave unchanged): "
-        ).strip()
-
-        if new_firstname:
-            self.set_firstname(new_firstname)
-        if new_surname:
-            self.set_surname(new_surname)
-        if new_house_number:
-            self.set_housenumber(int(new_house_number))
-        if new_street_name:
-            self.set_streetname(new_street_name)
-        if new_postcode:
-            self.set_postcode(new_postcode)
+        return textwrap.dedent(
+            f"""\
+            Name: {self.firstname}
+            Email address: {self.email_address}
+            Date of birth: {self.date_of_birth}
+            House number: {self.house_number}
+            Street name: {self.street_name}
+            Postcode: {self.postcode}
+            """
+        )
 
 
-class UserList:
-    """
-    This class provides capabilities for storing, searching for, and deleting User instances.
-    """
-
+class UsersDB(BaseDB):
     def __init__(self):
-        """
-        This constructor creates a new dictionary collection for User instances.
-        """
-        self.user_collection: Dict[str, User] = {}
+        super().__init__()
+        self.c.execute(
+            f"""
+            CREATE TABLE IF NOT EXISTS {self.table_name} (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                date_of_birth DATE NOT NULL,
+                email TEXT,
+                house_number INTEGER,
+                street_name TEXT,
+                postcode TEXT
+            )
+            """
+        )
 
-    def store_user(self, user_: User):
-        """
-        This method stores a User instance in the collection.
+    @property
+    def table_name(self) -> str:
+        return "users"
 
-        :param user_: The User instance to store.
-        """
+    def create(self, obj: User):
         try:
-            if user_.username in self.user_collection:
-                log(f"User '{user_.username}' already stored")
-                return
-            self.user_collection[user_.username] = user_
-            log(f"User '{user_.username}' stored successfully")
+            self.c.execute(
+                f"""
+                INSERT INTO {self.table_name} (name, email, date_of_birth, house_number, street_name, postcode)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    obj.name,
+                    obj.email_address,
+                    obj.date_of_birth,
+                    obj.house_number,
+                    obj.street_name,
+                    obj.postcode,
+                ),
+            )
+            self.conn.commit()
+            log(f"User '{obj.name}' stored successfully")
         except Exception as ex:
-            log(f"Failed to store user '{user_.username}' due to {ex}")
+            raise Exception(f"Failed to store user due to {ex}")
 
-    def remove_user(self, first_name: str):
-        """
-        This method removes a user by their first name.
-
-        If many users with the same first name exist, it informs the program users.
-
-        :param first_name: The first name of the user to remove.
-        """
-        try:
-            matching_users = [
-                user_
-                for user_ in self.user_collection.values()
-                if user_.firstname == first_name
-            ]
-
-            if len(matching_users) > 1:
-                log(
-                    f"Warning: More than one user with the first name '{first_name}' exists."
-                )
-                usernames = ", ".join([user_.username for user_ in matching_users])
-                log(f"Users with first name '{first_name}': {usernames}")
-                username = input("Enter the username of the user you want to remove: ")
-
-                if (
-                    username in self.user_collection
-                    and self.user_collection[username].firstname == first_name
-                ):
-                    del self.user_collection[username]
-                    log(f"User '{username}' removed successfully")
-                else:
-                    log(
-                        f"No user with username '{username}' and first name '{first_name}'"
-                    )
-
-            elif len(matching_users) == 1:
-                for username, user_ in self.user_collection.items():
-                    if user_ == matching_users[0]:
-                        del self.user_collection[username]
-                        log(f"User '{username}' removed successfully")
-                        break
-
-            else:
-                log(f"No user with first name '{first_name}'")
-
-        except Exception as ex:
-            log(f"Failed to remove {first_name}'s user due to {ex}")
-
-    def count_users(self) -> int:
-        """
-        This method returns the count of users in the system.
-
-        This should be based on the number of user objects in the user collection.
-
-        :return: Total count of users
-        """
-        return len(self.user_collection)
-
-    def get_user(self, username: str) -> User:
-        """
-        This method returns a user's detail by the username.
-
-        :param username: The username of the user.
-        :return: The User instance.
-        """
-        try:
-            return self.user_collection[username]
-        except Exception as ex:
-            log(f"An error occurred: {ex}")
-
-    def __repr__(self):
-        return f"{type(self).__name__}({self.__dict__!r})"
-
-
-def generate_user(first_name: str = None, last_name: str = None) -> User:
-    faker = Faker()
-
-    unique_id = faker.random_number(digits=4, fix_len=True)
-    first_name = first_name or faker.first_name()
-    username_slug = slugify(first_name)
-    unique_username = f"{username_slug}-{unique_id}"
-
-    last_name = last_name or faker.last_name()
-
-    fake_gmail = f"{first_name}.{last_name}{unique_id}@gmail.com".lower()
-
-    return User(
-        unique_username,
-        first_name,
-        last_name,
-        faker.building_number(),
-        faker.street_name(),
-        faker.postcode(),
-        fake_gmail,
-        faker.date_of_birth(maximum_age=115),
-    )
-
-
-if __name__ == "__main__":
-    user = generate_user()
-
-    print(user)
-    print("-=" * 20)
-
-    user.set_firstname("John")
-    user.set_surname("Doe")
-    user.set_email_address(
-        "this is not a valid email address"
-    )  # should not update the email address
-    user.set_email_address("john.doe@gmail.com")
-    user.set_date_of_birth("28-01-2000")  # should not update the date of birth
-    user.set_date_of_birth("01-28-2000")
-
-    print(user)
-
-    user_list = UserList()
-
-    user1 = generate_user(first_name="Patrick")
-    user2 = generate_user(first_name="Patrick")
-
-    user_list.store_user(user1)
-    user_list.store_user(user2)
-    print()
-
-    print(user_list.get_user(user1.username))
-    print()
-    print(user_list.get_user(user2.username))
-    print()
-
-    user_list.remove_user("Patrick")
-    print()
-
-    print(f"Total users: {user_list.count_users()}")
+    def update(self, primary_key: int, obj: User) -> None:
+        date_of_birth = obj.date_of_birth
+        if not isinstance(obj.date_of_birth, datetime):
+            date_of_birth = datetime.strptime(obj.date_of_birth, FORMAT)
+        self.c.execute(
+            f"""
+            UPDATE {self.table_name}
+            SET name = ?, email = ?, date_of_birth = ?, house_number = ?, street_name = ?, postcode = ?
+            WHERE id = ?
+            """,
+            (
+                obj.name,
+                obj.email_address,
+                date_of_birth,
+                obj.house_number,
+                obj.street_name,
+                obj.postcode,
+                primary_key,
+            ),
+        )
+        log(f"User '{obj.name}' updated successfully")
