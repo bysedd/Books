@@ -10,8 +10,6 @@ def validate_string(
         raise ValueError(f"{field_name} cannot be empty")
     if not bool(re.fullmatch("[A-Za-z ]+", value)):
         raise ValueError(f"{field_name} must contain only alphabets and spaces")
-    if min_length <= len(value) <= max_length:
-        raise ValueError(f"{field_name} cannot exceed {max_length} characters")
 
 
 def validate_name(name: str, min_length: int = 3) -> None:
@@ -38,20 +36,3 @@ def title_msg(string: str) -> str:
     """
     string = f"{'-' * 20} {string} {'-' * 20}"
     return string.title()
-
-
-def get_option(options: list[str]) -> str:
-    """
-    Get an option from a list of options.
-    """
-    print("Available options:")
-    for idx, option in enumerate(options, 1):
-        print(f"{idx}. {option}")
-    while True:
-        try:
-            choice = int(input("Enter choice: "))
-            if 1 <= choice <= len(options):
-                return options[choice - 1]
-            raise ValueError
-        except ValueError:
-            print("Invalid choice. Try again.")
