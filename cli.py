@@ -13,9 +13,7 @@ class LibraryCMD(cmd.Cmd):
     """
 
     intro = ASCII_ART
-    intro += (
-        "\nWelcome to the library system. Type 'help' or '?' to list the commands.\n"
-    )
+    intro += "\nWelcome to the library system. Type 'help' or '?' to list the commands.\n"
 
     def __init__(self):
         super().__init__()

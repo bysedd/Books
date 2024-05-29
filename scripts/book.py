@@ -28,7 +28,9 @@ class Book:
             book.author = author
             book.publication_date = publication_date
             book.publisher = publisher if publisher else None
-            book.available_copies = available_copies if available_copies else None
+            book.available_copies = (
+                available_copies if available_copies else None
+            )
             return book
         except ValueError as e:
             print(e)
@@ -86,5 +88,7 @@ class Book:
         if not isinstance(available_copies, int):
             raise TypeError("Available copies must be an integer")
         if available_copies < 0:
-            raise ValueError("Available copies must be greater than or equal to 0")
+            raise ValueError(
+                "Available copies must be greater than or equal to 0"
+            )
         self.__available_copies = int(available_copies)
