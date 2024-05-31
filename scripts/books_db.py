@@ -26,6 +26,8 @@ class BooksDB:
         )
 
     def create(self, book: Book) -> None:
+        if not isinstance(book, Book):
+            raise ValueError("Invalid book object")
         self.c.execute(
             f"""
             INSERT INTO {self.table_name}
@@ -57,6 +59,8 @@ class BooksDB:
             log(ex)
 
     def update(self, _id: int, book: Book) -> None:
+        if not isinstance(book, Book):
+            raise ValueError("Invalid book object")
         self.c.execute(
             f"""
             UPDATE {self.table_name}
